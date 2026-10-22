@@ -1,0 +1,20 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+
+# capture bundles are measurements, not source
+*.bundle.json.gz
+
+# tool caches
+.ruff_cache/
+.pytest_cache/
+
+# attempts a harness run leaves behind
+runs/

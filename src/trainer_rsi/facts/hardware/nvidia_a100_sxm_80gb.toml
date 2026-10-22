@@ -1,0 +1,120 @@
+[spec]
+schema = "trainer_rsi.hardware/v1"
+kind = "device"
+id = "nvidia.a100_sxm_80gb"
+label = "NVIDIA A100 SXM, 80 GB HBM2e"
+
+[compatibility]
+architecture = "nvidia.sm80"
+
+[facts.compute.sm_count]
+value = 108
+unit = "count"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "GA100 part with all SMs enabled, SXM form factor."
+
+[facts.throughput.f32]
+value = 19500000000000
+unit = "flop/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "dense FP32, no sparsity footnote on this row."
+
+[facts.throughput.tf32]
+value = 156000000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "dense; the published 312 TFLOP/s TF32 row is stated with sparsity, so it is divided by two."
+
+[facts.throughput.f16]
+value = 312000000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "dense; the published 624 TFLOP/s FP16 row is stated with sparsity, so it is divided by two."
+
+[facts.throughput.bf16]
+value = 312000000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "dense; the published 624 TFLOP/s BF16 row is stated with sparsity, so it is divided by two."
+
+[facts.throughput.fp8e4m3]
+status = "unavailable"
+unit = "flop/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "Ampere tensor cores have no FP8 mode."
+
+[facts.throughput.fp8e5m2]
+status = "unavailable"
+unit = "flop/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "Ampere tensor cores have no FP8 mode."
+
+[facts.throughput.f4e2m1]
+status = "unavailable"
+unit = "flop/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "Ampere tensor cores have no FP4 mode."
+
+[facts.memory.hbm.capacity]
+value = 80000000000
+unit = "byte"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "80 GB HBM2e as marketed, one pool shared by the whole device; a part reports more through the CUDA runtime than this marketed figure."
+
+[facts.memory.hbm.bandwidth]
+value = 2039000000000
+unit = "byte/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "2039 GB/s peak for the 80 GB part; the 40 GB part states 1555 GB/s and is a different document."
+
+[facts.memory.hbm.latency]
+status = "unavailable"
+unit = "s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "no vendor figure; latency does not enter a bandwidth-bound bound."
+
+[facts.memory.l2.capacity]
+value = 40000000
+unit = "byte"
+origin = "reference"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "40 MB as the A100 whitepaper states for GA100."
+
+[facts.memory.l2.bandwidth]
+status = "unavailable"
+unit = "byte/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "NVIDIA publishes no static L2 bandwidth."
+
+[facts.interconnect.nvlink.bandwidth]
+value = 600000000000
+unit = "byte/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "third-generation NVLink, 600 GB/s per GPU counting both directions; the per-direction rate a ring collective is limited by is half this."
+
+[facts.interconnect.nvlink.domain]
+value = 8
+unit = "count"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "the largest NVSwitch domain an HGX A100 baseboard carries."
+
+[facts.interconnect.pcie.bandwidth]
+value = 64000000000
+unit = "byte/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
+conditions = "PCIe 4.0 x16, 64 GB/s counting both directions."

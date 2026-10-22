@@ -1,0 +1,89 @@
+[project]
+name = "trainer-rsi"
+version = "0.1.0"
+description = "Full-pipeline optimizer for training programs: capture, attribute, rewrite, verify — on remote GPUs."
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "anyio>=4.15.1",
+    "dulwich>=1.2.19",
+    "numpy>=2.5.4",
+    "pydantic>=2.14.1",
+    "rich>=15.0.0",
+]
+
+[project.optional-dependencies]
+# Capture runs where the model runs, so it borrows that environment's torch
+# rather than pinning one here. `trsi capture` refuses to start without it.
+capture = ["torch>=2.9"]
+# The harness drives a coding agent through its own runtime; nothing else needs it.
+agent = ["openai-codex>=0.163"]
+
+[project.scripts]
+trsi = "trainer_rsi.cli:main"
+
+[build-system]
+requires = ["uv_build>=0.13.4,<0.14.0"]
+build-backend = "uv_build"
+
+[dependency-groups]
+dev = [
+    "pre-commit>=4.7.0",
+    "pytest>=9.0.1",
+    "ruff>=0.17.1",
+    "torch>=2.14.1",
+    "ty>=0.0.90",
+]
+
+[tool.uv]
+# The CPU wheel is what a dev box without a GPU can run. Workers never read
+# this file for torch: they use the torch already installed beside their model.
+[[tool.uv.index]]
+name = "torch-cpu"
+url = "https://download.pytorch.org/whl/cpu"
+explicit = true
+
+[tool.uv.sources]
+torch = { index = "torch-cpu" }
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-q --strict-markers --strict-config"
+filterwarnings = ["error"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py314"
+src = ["src", "tests"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "N", "D2", "D3", "D4", "UP", "B", "SIM", "RUF", "ANN", "RET", "ARG", "PL"]
+ignore = [
+    # Long single-line report strings stay readable; wrapping them is worse.
+    "E501",
+    "D203",
+    "D213",
+    # Docstrings here are dense by design; D205 wants a blank line after summary.
+    "D205",
+    "PLR0913",
+    "PLR2004",
+    # A cost table is a dispatch over kinds; branch and return counts follow from it.
+    "PLR0911",
+    "PLR0912",
+    # These are pydantic fields, which carry their own default-copying;
+    # RUF012 wants a ClassVar, which would stop them being fields.
+    "RUF012",
+]
+
+[tool.ruff.lint.per-file-ignores]
+# The agent runtime is imported inside the one function that drives a turn, so the
+# package imports without it installed.
+"src/trainer_rsi/harness/runner.py" = ["PLC0415"]
+# Tests assert on literals; that is the point of a test.
+"tests/**" = ["ANN", "PLR2004", "S101"]
+
+[tool.ruff.lint.pydocstyle]
+convention = "google"
+
+[tool.ty.environment]
+python-version = "3.14"

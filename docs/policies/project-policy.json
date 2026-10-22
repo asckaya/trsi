@@ -1,0 +1,44 @@
+{
+  "version": 1,
+  "policies": [
+    {
+      "id": "spec_impact",
+      "name": "Spec impact",
+      "description": "A milestone that changes a public contract names its owning specification.",
+      "when": { "path_glob": ["src/**"] },
+      "ac": [
+        "A milestone that changes a contract MUST list its owner under Related Files; one that changes none MUST list no spec path."
+      ],
+      "rules": {
+        "implementer": [{ "path": "docs/develop.md", "section": "Specs" }],
+        "reviewer": [{ "path": "docs/spec/architecture.md", "section": "5. Specification ownership" }]
+      }
+    },
+    {
+      "id": "no_default_bound",
+      "name": "No default bound",
+      "description": "Nothing may supply a tolerance, a device, a dtype or an extent that the caller did not state.",
+      "when": { "path_glob": ["src/trainer_rsi/verify/**", "src/trainer_rsi/analyze/**", "src/trainer_rsi/facts/**"] },
+      "ac": [
+        "A change MUST NOT introduce a default tolerance, a fallback device document, or a guessed extent. An unknown input is refused with what is installed, not filled in."
+      ],
+      "rules": {
+        "implementer": [{ "path": "docs/spec/verify.md", "section": "1. No default bound" }],
+        "reviewer": [{ "path": "docs/spec/facts.md", "section": "3. Absent is not unavailable" }]
+      }
+    },
+    {
+      "id": "milestone_review",
+      "name": "Milestone review",
+      "description": "Touched tests retain only meaningful contract coverage after each milestone.",
+      "when": { "path_glob": ["**"] },
+      "ac": [
+        "Touched tests MUST be reviewed for redundancy: remove ones superseded by the retained workflow, and do not add source-shape or hypothetical-refactor guards unless that form is a public contract."
+      ],
+      "rules": {
+        "implementer": [{ "path": "docs/develop.md", "section": "Tests" }],
+        "reviewer": [{ "path": "docs/develop.md", "section": "Tests" }]
+      }
+    }
+  ]
+}

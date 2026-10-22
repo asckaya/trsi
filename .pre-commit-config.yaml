@@ -1,0 +1,26 @@
+# Local hooks only: a checkout formats and type-checks itself without a network.
+repos:
+  - repo: local
+    hooks:
+      - id: ruff
+        name: ruff
+        entry: uv run ruff check --fix
+        language: system
+        types_or: [python]
+      - id: ruff-format
+        name: ruff-format
+        entry: uv run ruff format
+        language: system
+        types_or: [python]
+      - id: ty
+        name: ty
+        entry: uv run ty check
+        language: system
+        pass_filenames: false
+        types_or: [python]
+      - id: spec-index
+        name: spec-index
+        entry: uv run python scripts/spec_index.py
+        language: system
+        pass_filenames: false
+        files: ^docs/spec/.*\.md$

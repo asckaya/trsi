@@ -1,0 +1,120 @@
+[spec]
+schema = "trainer_rsi.hardware/v1"
+kind = "device"
+id = "nvidia.rtx_a6000"
+label = "NVIDIA RTX A6000, 48 GB GDDR6"
+
+[compatibility]
+architecture = "nvidia.sm86"
+
+[facts.compute.sm_count]
+value = 84
+unit = "count"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "84 SMs and 10752 CUDA cores, the full GA102 part; the datasheet publishes the core count and the SM count is the same die configured whole."
+
+[facts.throughput.f32]
+value = 38700000000000
+unit = "flop/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "38.7 TFLOPS single precision, no sparsity footnote on this row."
+
+[facts.throughput.tf32]
+value = 77400000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "dense; the datasheet states 154.8 TFLOPS TF32 tensor with sparsity, so it is divided by two."
+
+[facts.throughput.f16]
+value = 154800000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "dense; the datasheet states 309.7 TFLOPS FP16 tensor with sparsity, so it is divided by two."
+
+[facts.throughput.bf16]
+value = 154800000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "dense, at the FP16 rate: the Ampere tensor core issues BF16 and FP16 products at the same rate, and the datasheet lists one tensor row for both."
+
+[facts.throughput.fp8e4m3]
+status = "unavailable"
+unit = "flop/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "Ampere tensor cores have no FP8 mode."
+
+[facts.throughput.fp8e5m2]
+status = "unavailable"
+unit = "flop/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "Ampere tensor cores have no FP8 mode."
+
+[facts.throughput.f4e2m1]
+status = "unavailable"
+unit = "flop/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "Ampere tensor cores have no FP4 mode."
+
+[facts.memory.hbm.capacity]
+value = 48000000000
+unit = "byte"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "48 GB GDDR6 with ECC, one pool shared by the whole device."
+
+[facts.memory.hbm.bandwidth]
+value = 768000000000
+unit = "byte/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "768 GB/s on a 384-bit GDDR6 interface."
+
+[facts.memory.hbm.latency]
+status = "unavailable"
+unit = "s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "no vendor figure; latency does not enter a bandwidth-bound bound."
+
+[facts.memory.l2.capacity]
+status = "unavailable"
+unit = "byte"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "the datasheet publishes no L2 capacity."
+
+[facts.memory.l2.bandwidth]
+status = "unavailable"
+unit = "byte/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "NVIDIA publishes no static L2 bandwidth."
+
+[facts.interconnect.nvlink.bandwidth]
+status = "unavailable"
+unit = "byte/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "the card supports a 2-way low-profile NVLink bridge, and the datasheet states no rate for it, so nothing is recorded here rather than a figure inferred from another product."
+
+[facts.interconnect.nvlink.domain]
+value = 2
+unit = "count"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "a 2-way bridge links at most two cards; there is no NVSwitch fabric on this product."
+
+[facts.interconnect.pcie.bandwidth]
+value = 64000000000
+unit = "byte/s"
+origin = "vendor"
+source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
+conditions = "PCIe 4.0 x16, 64 GB/s counting both directions."

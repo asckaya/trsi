@@ -1,0 +1,120 @@
+[spec]
+schema = "trainer_rsi.hardware/v1"
+kind = "device"
+id = "nvidia.h800_sxm"
+label = "NVIDIA H800 SXM, 80 GB HBM3"
+
+[compatibility]
+architecture = "nvidia.sm90"
+
+[facts.compute.sm_count]
+value = 132
+unit = "count"
+origin = "reference"
+source = "https://resources.nvidia.com/en-us-hopper-architecture/nvidia-h100-tensor-c"
+conditions = "the H800 datasheet publishes CUDA core and tensor rates but no SM count, and the H800 is the GH100 SXM part with a reduced link and FP64; 132 SMs is the GH100 SXM configuration."
+
+[facts.throughput.f32]
+value = 67000000000000
+unit = "flop/s"
+origin = "vendor"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "H800 SXM row, 67 TFLOPS FP32, no sparsity footnote on this row."
+
+[facts.throughput.tf32]
+value = 494500000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "dense; the datasheet states 989 TFLOPS TF32 with the footnote that dense figures are half."
+
+[facts.throughput.f16]
+value = 989500000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "dense; the datasheet states 1979 TFLOPS FP16 with the footnote that dense figures are half."
+
+[facts.throughput.bf16]
+value = 989500000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "dense; the datasheet states 1979 TFLOPS BF16 with the footnote that dense figures are half."
+
+[facts.throughput.fp8e4m3]
+value = 1979000000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "dense; the datasheet states 3958 TFLOPS FP8 with the footnote that dense figures are half."
+
+[facts.throughput.fp8e5m2]
+value = 1979000000000000
+unit = "flop/s"
+origin = "derived"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "same tensor core path as E4M3, so the same dense rate."
+
+[facts.throughput.f4e2m1]
+status = "unavailable"
+unit = "flop/s"
+origin = "vendor"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "Hopper tensor cores have no FP4 mode."
+
+[facts.memory.hbm.capacity]
+value = 80000000000
+unit = "byte"
+origin = "vendor"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "80 GB for both form factors, one pool shared by the whole device."
+
+[facts.memory.hbm.bandwidth]
+value = 3350000000000
+unit = "byte/s"
+origin = "vendor"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "3.35 TB/s for the SXM form factor; the PCIe form factor states 2 TB/s and is a different part with different compute rates."
+
+[facts.memory.hbm.latency]
+status = "unavailable"
+unit = "s"
+origin = "vendor"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "no vendor figure; latency does not enter a bandwidth-bound bound."
+
+[facts.memory.l2.capacity]
+value = 50000000
+unit = "byte"
+origin = "reference"
+source = "https://resources.nvidia.com/en-us-hopper-architecture/nvidia-h100-tensor-c"
+conditions = "50 MB decimal on the GH100 die; the H800 datasheet publishes no L2 capacity."
+
+[facts.memory.l2.bandwidth]
+status = "unavailable"
+unit = "byte/s"
+origin = "vendor"
+source = "https://resources.nvidia.com/en-us-hopper-architecture/nvidia-h100-tensor-c"
+conditions = "NVIDIA publishes no static L2 bandwidth."
+
+[facts.interconnect.nvlink.bandwidth]
+value = 400000000000
+unit = "byte/s"
+origin = "vendor"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "the datasheet states NVLink 400 GB/s for the SXM part, counting both directions; the per-direction rate a ring collective is limited by is half this. This is the figure the export restriction cut from the H100's 900 GB/s."
+
+[facts.interconnect.nvlink.domain]
+value = 8
+unit = "count"
+origin = "vendor"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "the datasheet offers HGX H800 baseboards with 8 GPUs."
+
+[facts.interconnect.pcie.bandwidth]
+value = 128000000000
+unit = "byte/s"
+origin = "vendor"
+source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
+conditions = "the datasheet states PCIe 5.0 128 GB/s, counting both directions."
