@@ -118,3 +118,31 @@ unit = "byte/s"
 origin = "vendor"
 source = "https://serverflow.ru/upload/iblock/88a/2fg6cfwqo83oxx9nynevdxkdllj1hbmg/%D0%A1%D0%BF%D0%B5%D1%86%D0%B8%D1%84%D0%B8%D0%BA%D0%B0%D1%86%D0%B8%D1%8F%20NVIDIA%20H800.pdf"
 conditions = "the datasheet states PCIe 5.0 128 GB/s, counting both directions."
+
+[facts.compute.max_threads_per_cta]
+value = 1024
+unit = "count"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 9.0: maximum threads per thread block."
+
+[facts.compute.max_threads_per_sm]
+value = 2048
+unit = "count"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 9.0: maximum resident threads per multiprocessor."
+
+[facts.memory.shared.per_cta]
+value = 232448
+unit = "byte"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 9.0: largest opt-in shared memory allocation per thread block, in bytes."
+
+[facts.memory.shared.per_sm]
+value = 233472
+unit = "byte"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 9.0: shared memory available per multiprocessor, in bytes."

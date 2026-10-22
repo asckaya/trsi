@@ -118,3 +118,31 @@ unit = "byte/s"
 origin = "vendor"
 source = "https://www.nvidia.com/content/dam/en-zz/Solutions/products/workstations/nvidia-rtx-a6000-datasheet.pdf"
 conditions = "PCIe 4.0 x16, 64 GB/s counting both directions."
+
+[facts.compute.max_threads_per_cta]
+value = 1024
+unit = "count"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 8.6: maximum threads per thread block."
+
+[facts.compute.max_threads_per_sm]
+value = 1536
+unit = "count"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 8.6: maximum resident threads per multiprocessor."
+
+[facts.memory.shared.per_cta]
+value = 101376
+unit = "byte"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 8.6: largest opt-in shared memory allocation per thread block, in bytes."
+
+[facts.memory.shared.per_sm]
+value = 102400
+unit = "byte"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 8.6: shared memory available per multiprocessor, in bytes."

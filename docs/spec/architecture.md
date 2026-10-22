@@ -53,6 +53,7 @@ agreed with a different capture.
 | analysis | `analyze/` | work rules, the two floors, the timeline, the finding contract |
 | plan | `plan/` | rewrites priced against the same device, taken as a disjoint set |
 | verification | `verify/` | bounds with no default, and a claim read off an interval |
+| kernels | `kernels/` | device-to-target mapping, tile geometry, emitted tile-level source |
 | harness | `harness/` | the task, the workspace copy, the measure and gate runs, the audit |
 
 `ir`, `facts`, `analyze`, `plan` and `verify` import no accelerator library.
@@ -69,6 +70,7 @@ agreed with a different capture.
 | [plan](./plan.md) | rewrite kinds, how each is priced, disjointness, self-refusal |
 | [harness](./harness.md) | the agent/harness split, the measure contract, acceptance |
 | [verify](./verify.md) | predicates, refusals, the claim and its interval |
+| [kernels](./kernels.md) | target mapping, tile geometry, the emitted source contract |
 
 ## 6. Where an agent fits
 

@@ -18,6 +18,9 @@ from trainer_rsi.harness import CodexRunner, Drive, Task, drive
 from trainer_rsi.harness import build as build_prompt
 from trainer_rsi.harness.runner import environment
 from trainer_rsi.ir.bundle import read_bundle
+from trainer_rsi.ir.dtype import DType
+from trainer_rsi.kernels import matmul_kernel
+from trainer_rsi.kernels import write as write_kernel
 from trainer_rsi.plan import candidate_plans
 from trainer_rsi.plan import report as plan_report
 from trainer_rsi.units import quantity
@@ -339,6 +342,34 @@ def render_drive(console: Console, result: Drive) -> None:
     )
 
 
+def command_kernel(args: argparse.Namespace, console: Console) -> int:
+    """Emit a tile-level kernel for one matmul, with geometry from the device document."""
+    doc = load(args.device)
+    kernel = matmul_kernel(
+        m=args.m, n=args.n, k=args.k, dtype=DType(args.dtype), limits=limits(doc), doc=doc
+    )
+    path = write_kernel(kernel, Path(args.out))
+    geometry = kernel.geometry
+    summary = Table(box=None, pad_edge=False, show_header=False)
+    summary.add_column(style="dim", justify="right")
+    summary.add_column()
+    summary.add_row("wrote", str(path))
+    summary.add_row("target", f"{kernel.target['kind']} {kernel.target['arch']}")
+    summary.add_row(
+        "tile",
+        f"{geometry.block_m}x{geometry.block_n}x{geometry.block_k}, {geometry.stages} stages",
+    )
+    summary.add_row("threads", str(geometry.threads))
+    summary.add_row(
+        "shared", f"{geometry.smem_bytes / 1024:.0f} KiB, {geometry.blocks_per_sm} block(s) per SM"
+    )
+    summary.add_row("waves", f"{geometry.waves:.1f}")
+    summary.add_row("roofline", f"{geometry.roofline_us:.1f} us")
+    console.print(summary)
+    console.print(f"[dim]run it with: python {path} --rtol <your bound>[/dim]")
+    return 0
+
+
 def facts_commands(commands: argparse._SubParsersAction) -> None:
     """Register the hardware-fact commands."""
     facts = commands.add_parser("facts", help="hardware facts this build can price against")
@@ -443,6 +474,19 @@ def capture_commands(commands: argparse._SubParsersAction) -> None:
     )
     drive.add_argument("--json", metavar="PATH", help="write the drive record to PATH")
     drive.set_defaults(run=command_drive)
+
+    kernel = commands.add_parser(
+        "kernel", help="emit a tile-level kernel whose geometry comes from the device"
+    )
+    kernel.add_argument("--device", required=True, help="installed device id the kernel is for")
+    kernel.add_argument("--m", type=int, required=True)
+    kernel.add_argument("--n", type=int, required=True)
+    kernel.add_argument("--k", type=int, required=True)
+    kernel.add_argument(
+        "--dtype", default="bf16", choices=("bf16", "f16", "f32", "fp8e4m3", "fp8e5m2")
+    )
+    kernel.add_argument("--out", default="matmul_kernel.py", help="where to write the source")
+    kernel.set_defaults(run=command_kernel)
 
 
 def parser() -> argparse.ArgumentParser:

@@ -22,6 +22,7 @@ already there, so nothing is shipped anywhere.
 | Facts | nothing | reads the installed device documents |
 | Capture | that machine's own `torch` | profiles the step, exports the graph, writes one bundle |
 | Analysis | no GPU | prices the bundle, ranks the gaps, prices the rewrites, compares two timings |
+| Kernels | no GPU to emit, a GPU to run | derives a tile from the device document and writes the kernel |
 | Harness | a coding agent runtime | hands the step over, then measures what came back |
 
 A bundle and a timing set are files, so a report is produced in the same session
@@ -142,6 +143,44 @@ sum | 3 disjoint plans predict 112.1 us per step out of 600.0 us measured (19%)
 Nothing is applied. A plan states what it touches, what it would owe, and what
 must be verified first; the rewrite and the measurement are the next layer.
 
+## The operator side: `trsi kernel`
+
+The analysis side stops at "these two ops become one kernel". This is the other
+half: the tile that kernel runs, derived from the device document rather than
+from a template.
+
+```sh
+trsi kernel --device nvidia.h800_sxm --m 8192 --n 8192 --k 8192 --out mm.py
+```
+
+```
+    tile  256x128x32, 3 stages
+ threads  256
+  shared  72 KiB, 3 block(s) per SM
+   waves  5.2
+roofline  1111.2 us
+```
+
+`mm.py` is a complete tile-level matmul: staged copies, a pipelined tensor-core
+`gemm`, a correctness gate that **refuses to run without a bound you state**, and
+event timing that prints one `us=` line per sample. That last part is what makes
+it measurable by the same harness:
+
+```sh
+trsi drive --repo . --device nvidia.h800_sxm \
+  --entry "python mm.py --rtol 2e-2" --measure "python mm.py --rtol 2e-2"
+```
+
+Geometry comes from the document: staged buffers must fit
+`memory.shared.per_cta`, the accumulator must fit
+`ACCUMULATORS_PER_THREAD` registers, residency follows `memory.shared.per_sm`
+and `compute.sm_count`. A tile that violates any of those is dropped, never
+clamped — and the choice is printed in the file, because it is a heuristic that
+the measurement is there to refute.
+
+The target mapping is a table (`nvidia.sm90` → `{"kind": "cuda", "arch": "sm_90"}`),
+so a second vendor is a new row rather than a branch in the emitter.
+
 ## Claiming a win: `trsi compare`
 
 Two timing sets in, one claim out:
@@ -232,6 +271,7 @@ capture/record.py ──► Bundle { Graph, Trace, Environment }  ──► anal
 | timeline | `analyze/timeline.py` | busy time, overlap, gaps, exposed collectives and copies |
 | findings | `analyze/gaps.py` | the six waste classes, each with a ceiling and a required check |
 | plans | `plan/candidates.py` | rewrites priced against the same device, taken as a disjoint set |
+| kernels | `kernels/` | tile geometry from the device document, emitted as tile-level source |
 | verification | `verify/predicates.py`, `verify/stats.py` | no-default bounds, and a claim read off an interval |
 | facts | `facts/` | installed documents, digests, the rates a bound divides by |
 
@@ -260,6 +300,7 @@ wired into `detect()`, with a case in `tests/test_analysis.py`.
 | [analysis](docs/spec/analysis.md) | cost rules, the two floors, coverage, the finding contract |
 | [plan](docs/spec/plan.md) | rewrite kinds, their pricing, disjointness, self-refusal |
 | [verify](docs/spec/verify.md) | predicates, refusals, the claim and its interval |
+| [kernels](docs/spec/kernels.md) | target mapping, tile geometry, the emitted source contract |
 | [harness](docs/spec/harness.md) | the agent/harness split, the measure contract, acceptance |
 | [0001 measure](docs/plans/0001-measure-and-verify.md) | the open milestone, partly delivered by the harness |
 
@@ -271,9 +312,9 @@ wired into `detect()`, with a case in `tests/test_analysis.py`.
   recompute and optimizer-state plans have no time model.
 - **Collectives are priced per op** from payload and link rate. There is no
   cluster fabric document, so a group wider than the NVLink domain is unpriced.
-- **No kernel codegen.** The plan level stops at "this pair becomes one kernel";
-  which tile loop realises it is the next layer, and it is where a tile-level
-  compiler belongs.
+- **One operator emitted.** `trsi kernel` writes a matmul; every other op kind is
+  refused rather than approximated. Realising a plan into a kernel request, and
+  tuning the geometry against measurements, are not built.
 - **No scheduler.** One command runs one thing on the machine it is given; there
   is no queue, no fleet, and no second machine involved.
 

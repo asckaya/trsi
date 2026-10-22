@@ -118,3 +118,31 @@ unit = "byte/s"
 origin = "vendor"
 source = "https://www.nvidia.com/content/dam/en-zz/Solutions/Data-Center/a100/pdf/nvidia-a100-datasheet-us-nvidia-1758950-r4-web.pdf"
 conditions = "PCIe 4.0 x16, 64 GB/s counting both directions."
+
+[facts.compute.max_threads_per_cta]
+value = 1024
+unit = "count"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 8.0: maximum threads per thread block."
+
+[facts.compute.max_threads_per_sm]
+value = 2048
+unit = "count"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 8.0: maximum resident threads per multiprocessor."
+
+[facts.memory.shared.per_cta]
+value = 166912
+unit = "byte"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 8.0: largest opt-in shared memory allocation per thread block, in bytes."
+
+[facts.memory.shared.per_sm]
+value = 167936
+unit = "byte"
+origin = "vendor"
+source = "https://docs.nvidia.com/cuda/cuda-c-programming-guide/index.html#features-and-technical-specifications-technical-specifications-per-compute-capability"
+conditions = "compute capability 8.0: shared memory available per multiprocessor, in bytes."
