@@ -29,14 +29,21 @@ dev = [
     "pre-commit>=4.7.0",
     "pytest>=9.0.1",
     "ruff>=0.17.1",
-    "torch>=2.14.1",
     "ty>=0.0.90",
 ]
+# Engine groups exist to check this project against the real thing, never to run it.
+# The tool imports none of them: capture and kernels emit source, the agent runtime
+# drives a separate program, and all three live in the environment of the model
+# being optimised. `uv sync --all-groups` for a complete development environment.
+capture = ["torch>=2.14.1"]
+kernel = ["tilelang>=0.1.15"]
+agent = ["openai-codex>=0.163"]
 
 [tool.uv]
-# torch is a dev dependency only, for the capture tests on a machine without an
-# accelerator, and the CPU wheel keeps that install small. Nothing the package
-# ships depends on it: capture borrows the torch installed beside the model.
+# torch appears only in the `capture` group, for the tests that export a graph and
+# read a profiler trace on a machine with nothing to accelerate. The CPU wheel
+# keeps that install small. Nothing the package ships depends on it: capture
+# borrows the torch installed beside the model.
 [[tool.uv.index]]
 name = "torch-cpu"
 url = "https://download.pytorch.org/whl/cpu"

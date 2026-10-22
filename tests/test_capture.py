@@ -1,16 +1,17 @@
 from pathlib import Path
 
 import pytest
-import torch
-from torch import nn
 
-from trainer_rsi import capture
-from trainer_rsi.capture.aten import kind_of
-from trainer_rsi.capture.graph import graph_of
-from trainer_rsi.capture.kineto import trace_of
-from trainer_rsi.cli import main
-from trainer_rsi.ir.bundle import read_bundle
-from trainer_rsi.ir.graph import Mesh
+torch = pytest.importorskip("torch", reason="the capture tests need torch: uv sync --group capture")
+nn = torch.nn
+
+from trainer_rsi import capture  # noqa: E402
+from trainer_rsi.capture.aten import kind_of  # noqa: E402
+from trainer_rsi.capture.graph import graph_of  # noqa: E402
+from trainer_rsi.capture.kineto import trace_of  # noqa: E402
+from trainer_rsi.cli import main  # noqa: E402
+from trainer_rsi.ir.bundle import read_bundle  # noqa: E402
+from trainer_rsi.ir.graph import Mesh  # noqa: E402
 
 
 class Block(nn.Module):
@@ -22,7 +23,7 @@ class Block(nn.Module):
         self.norm = nn.LayerNorm(128)
         self.down = nn.Linear(128, 64)
 
-    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:  # ty: ignore[invalid-mutable-override]
+    def forward(self, x: torch.Tensor) -> tuple[torch.Tensor, torch.Tensor]:
         hidden = self.up(x)
         hidden, mean, _rstd = torch.native_layer_norm(
             hidden, [128], self.norm.weight, self.norm.bias, 1e-5

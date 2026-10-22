@@ -31,17 +31,30 @@ as the capture, and can be read again later without the model present.
 ## Install
 
 ```sh
-uv sync                 # the tool
-uv sync --extra agent   # the tool plus the agent runtime `trsi drive` drives
+uv sync              # the tool
+uv sync --all-groups # ... plus what it takes to check the emitters against the real engines
 ```
 
-`torch` is not a dependency of this package and never will be. `capture` imports
-the torch already installed beside the model, so the stack being measured is the
-stack the model runs on rather than a second one that happens to be importable.
-Run it inside that environment; a venv without torch can still do everything
-except a capture.
+The package depends on none of the engines. It never imports `torch` and never
+imports `tilelang`:
 
-Without `uv`, the same two lines are `pip install -e .` and `pip install -e '.[agent]'`.
+| Piece | What it does | Needs |
+| --- | --- | --- |
+| `capture` | prints the snippet you paste into your loop | your environment's `torch` |
+| `kernel` | emits tile-level source as text | nothing |
+| `analyze`, `plan`, `compare` | arithmetic over a bundle and two timing sets | nothing |
+| `drive` | hands the step to a coding agent, then measures | an agent runtime |
+
+So the engine lives where the model lives. Install the tool **into the environment
+of the repository you are optimising**, and `trsi drive` measures that stack rather
+than a second one that happens to be importable:
+
+```sh
+uv pip install --python /path/to/model-env/bin/python -e '.[agent]'
+```
+
+Without `uv` anywhere: `pip install -e .`, and `pip install -e '.[agent]'` for
+`trsi drive`.
 
 ## Five minutes without a GPU
 

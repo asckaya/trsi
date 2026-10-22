@@ -1,4 +1,5 @@
 import ast
+import importlib.util
 from pathlib import Path
 
 import pytest
@@ -13,6 +14,7 @@ from trainer_rsi.kernels import (
     tile_candidates,
     tile_target,
     vendor_of,
+    write,
 )
 from trainer_rsi.kernels.emit import DTYPE_SPELLINGS
 from trainer_rsi.kernels.geometry import ACCUMULATORS_PER_THREAD, smem_of
@@ -145,6 +147,24 @@ def test_a_dtype_with_no_spelling_is_refused_before_any_source_exists():
     assert DType.I32 not in DTYPE_SPELLINGS
     with pytest.raises(KeyError):
         matmul_kernel(m=64, n=64, k=64, dtype=DType.I32, limits=limits(doc), doc=doc)
+
+
+def test_the_emitted_kernel_is_accepted_by_the_real_compiler(tmp_path: Path):
+    pytest.importorskip(
+        "tilelang", reason="checking emitted source against tilelang: uv sync --group kernel"
+    )
+
+    doc = load("nvidia.h800_sxm")
+    kernel = matmul_kernel(m=1024, n=1024, k=1024, dtype=DType.BF16, limits=limits(doc), doc=doc)
+    path = write(kernel, tmp_path / "mm.py")
+    spec = importlib.util.spec_from_file_location("emitted", path)
+    assert spec is not None and spec.loader is not None
+    module = importlib.util.module_from_spec(spec)
+    spec.loader.exec_module(module)
+    assert type(module.matmul).__name__ == "JITImpl", (
+        "the decorator returned something other than a kernel"
+    )
+    assert module.TARGET == {"kind": "cuda", "arch": "sm_90"}
 
 
 def test_the_kernel_command_writes_the_source(tmp_path: Path, capsys):

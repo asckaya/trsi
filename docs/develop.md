@@ -5,15 +5,20 @@
 Python 3.14, `uv`, no accelerator required for anything except a capture.
 
 ```sh
-uv sync --extra agent        # the tool, the agent runtime, and the dev tools
+uv sync --all-groups         # the tool, the dev tools, and the three engines
 uv run pytest                # the suite, no GPU needed
 uv run ruff check . && uv run ruff format --check .
 uv run ty check
 ```
 
-`torch` is in the dev group only, so the capture tests run on a machine without an
-accelerator; the package itself depends on no accelerator library. Where the model
-runs, `capture` imports that environment's torch instead.
+Three groups exist to check this project against the real thing, and for no other
+reason: `capture` (torch, the CPU wheel), `kernel` (tilelang, whose API the
+emitted source is compiled against in a test) and `agent` (the Codex runtime the
+adapter is written against). A plain `uv sync` leaves all three out, which is what
+the package itself ships: it imports none of them.
+
+A test that needs an engine asks for it with `importorskip`, so a suite run
+without `--all-groups` reports skips rather than failures.
 
 ## Tests
 
