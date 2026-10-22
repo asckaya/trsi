@@ -282,6 +282,7 @@ def command_drive(args: argparse.Namespace, console: Console) -> int:
         config=tuple(args.config),
         env=environment(args.env) or None,
     )
+    runner.check()
     result = drive(task, runner)
     if args.json:
         write_json(Path(args.json), result.jsonable())
@@ -466,7 +467,7 @@ def main(argv: Sequence[str] | None = None) -> int:
         return 0
     try:
         return int(args.run(args, console))
-    except (KeyError, ValueError, OSError, TypeError) as error:
+    except (KeyError, ValueError, OSError, TypeError, RuntimeError) as error:
         print(f"{PROGRAM}: error: {error}", file=sys.stderr)
         return 1
 

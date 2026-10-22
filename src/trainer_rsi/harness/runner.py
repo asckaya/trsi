@@ -1,14 +1,10 @@
+import importlib.util
 import json
 from collections.abc import Sequence
 from pathlib import Path
 from typing import Protocol
 
 from trainer_rsi.harness.contract import JsonObject, SandboxLevel, Turn
-
-SCHEMA_HINT = """Write your answer to `report.json` in the repository root as JSON with keys:
-  summary (string), changed (list of relative paths), could_not_check (list of strings),
-  claims (list of {kind: "speed"|"correctness", statement, speedup?, evidence?}).
-"""
 
 
 def overrides(pairs: Sequence[str]) -> tuple[str, ...]:
@@ -79,6 +75,18 @@ class CodexRunner:
         self.approval = approval
         self.config = overrides(config)
         self.env = env
+
+    def check(self) -> None:
+        """Confirm the runtime is installed, before a baseline is measured for nothing.
+
+        Raises:
+            RuntimeError: The agent runtime is not importable, naming the install.
+        """
+        if importlib.util.find_spec("openai_codex") is None:
+            raise RuntimeError(
+                "the agent runtime is not installed; add it with `uv sync --extra agent`"
+                " or `pip install openai-codex`"
+            )
 
     def run(self, prompt: str, *, cwd: Path, output_schema: JsonObject | None = None) -> Turn:
         """Start a thread in *cwd*, run one turn, and read its structured output."""
