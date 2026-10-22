@@ -14,31 +14,29 @@ be verified before any of it is claimed — never a promised speedup.
 
 ## What runs where
 
+Everything runs on the machine that holds the model. The weights and the data are
+already there, so nothing is shipped anywhere.
+
 | | Needs | Does |
 | --- | --- | --- |
-| Control plane | Python 3.14, no GPU | `facts`, `capture` (prints a snippet), `analyze`, `plan`, `compare`, `remote`, `runs` |
-| Capture | The GPU host, its own `torch`, the model's environment | profiles the step, exports the graph, writes one bundle |
-| Analysis | Control plane | reads a bundle on a laptop; never touches a GPU |
+| Facts | nothing | reads the installed device documents |
+| Capture | that machine's own `torch` | profiles the step, exports the graph, writes one bundle |
+| Analysis | no GPU | prices the bundle, ranks the gaps, prices the rewrites, compares two timings |
+| Harness | a coding agent runtime | hands the step over, then measures what came back |
 
-A capture happens where the model runs. The bundle it writes is small enough to
-carry back, and the report is produced from it anywhere.
+A bundle and a timing set are files, so a report is produced in the same session
+as the capture, and can be read again later without the model present.
 
 ## Install
 
-Control plane:
-
 ```sh
-uv sync
+uv sync                            # everything, on the machine with the model
+pip install -e '.[capture]'        # the model's torch, borrowed rather than pinned
+pip install -e '.[capture,agent]'  # plus the agent runtime `trsi drive` drives
 ```
 
-On a GPU host, inside whichever environment already runs the model:
-
-```sh
-pip install -e '.[capture]'
-```
-
-`capture` borrows that environment's `torch` rather than pinning one: the point
-is to measure the stack the model actually runs on.
+`capture` borrows that environment's `torch` on purpose: the point is to measure
+the stack the model actually runs on.
 
 ## Five minutes without a GPU
 
@@ -77,20 +75,6 @@ The `with` block **is** the measured window: open it after warmup, close it afte
 the steps whose cost the report should describe. `module=` and `example=` are
 optional; without them the bundle carries a timeline and no graph, and the report
 says so instead of guessing at one.
-
-### When the model runs somewhere else
-
-```sh
-trsi remote add h800 --host me@gpu01 --workdir /data/rsi --device nvidia.h800_sxm
-trsi remote sync h800                    # rsync this tree there
-trsi remote run h800 -- python train.py --max-steps 3
-trsi remote fetch h800 step.bundle.json.gz
-trsi analyze step.bundle.json.gz
-```
-
-Every `sync`, `run` and `fetch` is written to a local sqlite ledger, so `trsi runs`
-answers what was run, where, for how long, and with what exit code. ssh runs in
-`BatchMode`, so a missing key fails immediately instead of waiting on a prompt.
 
 ## What the report says
 
@@ -232,7 +216,7 @@ Adding a device is one file under `src/trainer_rsi/facts/hardware/` with schema
 
 ```
 capture/record.py ──► Bundle { Graph, Trace, Environment }  ──► analyze/report.py
-     (GPU host)              (one gzipped JSON)                  (no GPU)
+     (that machine)          (one gzipped JSON)                  (no GPU)
 ```
 
 | Stage | File | Owns |
@@ -246,7 +230,6 @@ capture/record.py ──► Bundle { Graph, Trace, Environment }  ──► anal
 | plans | `plan/candidates.py` | rewrites priced against the same device, taken as a disjoint set |
 | verification | `verify/predicates.py`, `verify/stats.py` | no-default bounds, and a claim read off an interval |
 | facts | `facts/` | installed documents, digests, the rates a bound divides by |
-| transport | `cloud/` | host definitions, ssh/rsync, the run ledger |
 
 The invariant: **the graph states work, the trace states duration, and the
 analysis is their disagreement.** Nothing stores a derived timing next to the
@@ -273,7 +256,6 @@ wired into `detect()`, with a case in `tests/test_analysis.py`.
 | [analysis](docs/spec/analysis.md) | cost rules, the two floors, coverage, the finding contract |
 | [plan](docs/spec/plan.md) | rewrite kinds, their pricing, disjointness, self-refusal |
 | [verify](docs/spec/verify.md) | predicates, refusals, the claim and its interval |
-| [cloud](docs/spec/cloud.md) | host definitions, the ssh contract, the ledger |
 | [harness](docs/spec/harness.md) | the agent/harness split, the measure contract, acceptance |
 | [0001 measure](docs/plans/0001-measure-and-verify.md) | the open milestone, partly delivered by the harness |
 
@@ -288,8 +270,8 @@ wired into `detect()`, with a case in `tests/test_analysis.py`.
 - **No kernel codegen.** The plan level stops at "this pair becomes one kernel";
   which tile loop realises it is the next layer, and it is where a tile-level
   compiler belongs.
-- **No HTTP control plane.** Remote work is batch-shaped over ssh, which needs no
-  open port and no daemon, at the cost of no interactive session.
+- **No scheduler.** One command runs one thing on the machine it is given; there
+  is no queue, no fleet, and no second machine involved.
 
 ## Develop
 

@@ -15,7 +15,7 @@
 │ torch.export│──►│ Trace        │──►│ timeline         │──►│ combination  │
 │ chrome trace│   │ Environment  │   │ gaps             │   │              │
 └─────────────┘   └──────────────┘   └──────────────────┘   └──────┬───────┘
-     GPU host       one file,          no GPU needed               │ priced,
+   that machine     one file,          no GPU needed               │ priced,
                     gzipped JSON                                   │ not applied
                                                                    ▼
                                                     verify: bounds in, claim out

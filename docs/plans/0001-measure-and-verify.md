@@ -24,8 +24,8 @@ the files `compare` already reads. It adds no new claim logic.
   window of steps. It does not produce a distribution, has no warmup policy, and
   its step time is the span of the profiler window, which includes launch gaps at
   the edges.
-- `src/trainer_rsi/cloud/ssh.py` runs a command and records its exit code; nothing
-  carries a measurement back except a bundle the reader fetches by name.
+- Nothing times a step. The only duration a report holds is the profiler window's
+  span, which includes launch gaps at its edges and is not a distribution.
 
 ### Decisions
 
@@ -82,33 +82,3 @@ iterations, and writes a file `compare` accepts. A run with fewer than
   annotations the capture does not write.
 - Timing with `torch.utils.benchmark`: it owns the loop it measures, and the loop
   belongs to the model.
-
-### Milestone M1: run it on a host and fetch the result
-
-#### Depends
-- M0
-
-#### Target State Design
-
-##### Delivered
-
-```diff
-# src/trainer_rsi/cli.py
-+def command_measure(args, console) -> int:
-+    """Run a timing script on a host, fetch its file, and record it."""
-```
-
-##### Accepted by
-
-`trsi measure HOST --name ... --out ... -- python script.py` syncs nothing (the
-tree is already synced), runs, fetches the timing file, and records the run in the
-ledger with the sample count. A missing file on the host is an error naming the
-path it looked for.
-
-#### Related Files
-- `docs/spec/cloud.md`
-
-#### Rejected
-
-- A daemon on the host: a port to open, a process to supervise, and a protocol to
-  version, for a job that takes ninety seconds.

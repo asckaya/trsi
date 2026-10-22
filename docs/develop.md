@@ -5,13 +5,13 @@
 Python 3.14, `uv`, no accelerator required for anything except a capture.
 
 ```sh
-uv sync                      # control plane + dev tools
+uv sync                      # the tool, the specs' linters, and the dev tools
 uv run pytest                # 81 tests, no GPU
 uv run ruff check . && uv run ruff format --check .
 uv run ty check
 ```
 
-On a machine that owns the model, inside the model's own environment:
+Where the model runs, inside the model's own environment:
 
 ```sh
 pip install -e '.[capture]'
@@ -51,7 +51,7 @@ that apply by path.
 
 - Every data structure is a pydantic model on `trainer_rsi.base.Value`: frozen,
   strict, closed. Each is therefore also a wire format, read back from a bundle, a
-  ledger row, or an agent's structured output.
+  capture, or an agent's structured output.
 - Public names carry no leading underscore. Module files start with their imports.
 - A refusal names what is installed or defined, so the next attempt can succeed.
 - A docstring says what a caller must know; the spec says what the project
