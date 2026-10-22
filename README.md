@@ -30,13 +30,17 @@ as the capture, and can be read again later without the model present.
 ## Install
 
 ```sh
-uv sync                            # everything, on the machine with the model
-pip install -e '.[capture]'        # the model's torch, borrowed rather than pinned
-pip install -e '.[capture,agent]'  # plus the agent runtime `trsi drive` drives
+uv sync                 # the tool
+uv sync --extra agent   # the tool plus the agent runtime `trsi drive` drives
 ```
 
-`capture` borrows that environment's `torch` on purpose: the point is to measure
-the stack the model actually runs on.
+`torch` is not a dependency of this package and never will be. `capture` imports
+the torch already installed beside the model, so the stack being measured is the
+stack the model runs on rather than a second one that happens to be importable.
+Run it inside that environment; a venv without torch can still do everything
+except a capture.
+
+Without `uv`, the same two lines are `pip install -e .` and `pip install -e '.[agent]'`.
 
 ## Five minutes without a GPU
 

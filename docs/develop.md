@@ -5,20 +5,15 @@
 Python 3.14, `uv`, no accelerator required for anything except a capture.
 
 ```sh
-uv sync                      # the tool, the specs' linters, and the dev tools
-uv run pytest                # 81 tests, no GPU
+uv sync --extra agent        # the tool, the agent runtime, and the dev tools
+uv run pytest                # the suite, no GPU needed
 uv run ruff check . && uv run ruff format --check .
 uv run ty check
 ```
 
-Where the model runs, inside the model's own environment:
-
-```sh
-pip install -e '.[capture]'
-```
-
-`capture` borrows that environment's `torch` on purpose: the stack being measured
-is the one the model runs on.
+`torch` is in the dev group only, so the capture tests run on a machine without an
+accelerator; the package itself depends on no accelerator library. Where the model
+runs, `capture` imports that environment's torch instead.
 
 ## Tests
 
